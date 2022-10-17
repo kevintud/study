@@ -1,0 +1,649 @@
+-----Convert JSON to objective c object (JSON PARSING);
+
+
+//data came from outside or local, it contains JSON (see item no.2)
+
+NSData * data;
+
+//convert into NSDictionary (the JSON may contain an array or a dictionary)
+
+id JSONObject = [NSJSONSerialization JSONObjectWithData: JSONData option:NSJSONReadingAllowFragments error:&error];
+
+//if array
+NSArray * myJSON= (NSArray *)JSONObject;
+
+//if dictionary
+NSDictionary * myJSON= （NSDictionary *）JSONObject;
+
+
+
+
+------Retrieve JSON into NSDATA
+//Retrieve local JSON file called example.json
+
+NSString * filePath =[[NSBundle mainBundle]pathForResource:@"example" ofType:@"json"];
+
+//Load the file into NSData object called JSONData
+
+NSError * error = nil;
+NSData * JSONData = [NSData dataWithContentsOfFile: filePath options:NSDataReadingMappedIfSafe error:&error];
+
+//to convert NSData to NSDictionary of NSArray see item no1
+
+
+
+
+-----From URL
+
+///make a url object
+
+NSURL * internetPath = [NSURL URLWithString:@"http:asdasdasdasd.com"];
+
+//loads JSON from the web into a NSData object called JSONData
+NSError * error = nil; //This so that we can access the error if something goes wrong
+NSData * JSONData = [NSData dataWithContentsOfURL: internetPath options:NSDataReadingMappedIfSafe error:&error];
+
+//to convert NSData to NSDictionary or NSArray see item no.1
+
+
+
+
+-------GIT PUSH
+--normal
+git add .
+git commit -m "<verb>: <what> <Details>"
+
+//eg Add: Login button - not yet functional
+
+//Then pull 
+git pull --rebase
+
+//Then PUSH
+
+git push origin HEAD:refs/for/feature_branch
+
+--with conflict
+
+///After you have  finalized your changes always commit them
+git add .\
+git commit -m "<verb>: <what> <details>"
+//eg. Add: Login Button - not yet functional
+
+//then pull
+git pull --rebase
+
+//if there is a conflict, open the indicated file with conflict and resolve manuallt
+//after resolving, do the following:
+git add .
+git rebase --continue
+//then push
+
+git push origin HEAD:refs/for/feature_branch
+
+
+--IOS API Fetching
+
+Get Request
+
+NSString * request=[NSString stringWithString: @"http://.com"];
+NSMutableURLRequest * urlRequest=[[NSMutableURLRequest alloc]initWithURL:[NSURL URLWithString:request]];
+
+//set method to Get
+[urlRequest setHTTPMethod: @"GET"];
+
+//create request session
+NSURLSession * session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask= [session dataTaskWithRequest:urlRequest completionHandler:^（NSData *data, NSURLResponse * response, NSError * error）{
+    //if response status is success
+    NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse *)response;
+    if(httpResponse.statusCode == 200) {
+        NSError * parseError =nil;
+        NSDictionary * responseDictionary = [NSJSONSerialization JSONObjectWithData:data option:0 error:&pareseError];
+        NSLog (@"The response is - %@", responseDictionary);
+
+    }
+    else {
+        NSLog(@"Error");
+    }
+    
+}];
+
+[dataTask resume];
+
+
+
+////post API Request
+
+NSDictionary * body = @{
+    @"member_account": @"Sanji",
+    @"bank_account_no": @"1231231454",
+    @"risk_name": @"waasdasd",
+    @"page_no": @"23",
+    @"page_size": @“3434”，
+    @“contact_number":@"12312451251256”
+};
+
+NSError * error;
+NSData * jsonData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&error];
+
+NSMutableURLRequest *request =[[NSMutableURLRequest alloc]init];
+
+//set request URL
+NSString * requestString = @"http:adasdaasda/asdasdad/asgfag";
+[request setURL: [NSURL URLWithStringL:requestString]];
+
+//set request method
+[request setHTTPMethod:@"POST"];
+
+//set request body
+[request setHTTPBody:jsonData];
+
+//set request HEADERS
+[request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+[request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+[request setValue:@"" forHTTPHeaderField:@"Authorization"];
+
+
+///configure request session
+NSURLSession * session =[NSURLSession sharedSession];
+NSURLSessionDataTask * dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * data, NSURLResponse * response, NSError * error){
+    if(error) {
+        NSLog (@"error: %@", error);
+    }
+    if(!data){
+        return;
+    }
+
+    NSError *parseError;
+    NSDictionary * responseDataDict = [NSJSONSerialization  JSONObjectWithData:data options:0 error:&pareseError]; // you need to convert to dictionary object
+    
+    if(responseDataDict) {
+        NSLog(@"requestReply: %@", responseDataDict);
+    }else {
+        NSLog (@"parseError: %@", parseError);
+        NSLog (@"response: response"); //when you have failure, its sometimes useful to see what this says
+        NSString * requestReply = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]; //this is json stringWithString
+        NSLog (@"requestReply: %@", requestReply);
+    }
+}];
+
+//start request session
+
+[dataTask resume];
+
+
+
+-------------BLOCK Syntax
+ReturnType (^block_name) (parameter_types_here) = ^ ReturnType (parameter_types_here_w_name) {};
+
+
+//no return, no parameter
+
+void (^myBlock) (void) = ^ {
+    NSLog (@"Hello block");
+};
+
+myBlock();
+
+
+//with return, no parameter
+
+int (^myBlock) (void) = ^ int (void) {
+    int x = 1;
+    int y = 2;
+    return x + y;
+};
+
+NSLog (@"myBlock value: %i", myBlock());
+
+
+//With Arguments
+
+void（^myBlock）(int, int) = ^void (int x, int y) {
+    NSLog (@"Sum = %i", x + y);
+};
+
+myBlock(2, 3);
+
+-------------block as function parameter
+
+
+//block without parameter return and without parameter_types_here
+
+void myFunc(void (^myBlock) (void)) {
+    myBlock();
+}
+
+//block with return and without parameter_types_here
+
+void myFunc (NSString * (^myBlock) (void)) { 
+    NSString * name = myBlock();
+    NSLog (@"my name is %@", name);
+}
+
+//block without return, but with parameter_types_here
+
+void myFunc (void (^myBlock) (NSString * name, NSInteger age)) {
+    myBlock (@"deks", 27);
+}
+
+
+//---------Example---------
+//sample 1 (via substitution)
+
+#import <Foundation/Foundation.h>
+void myFunc (void (^myBlock) (NSString * name, NSInteger age)) {
+    myBlock(@"deks", 27);
+}
+
+int main (int argc, const char * argv []) {
+    @autoreleasepool {
+        void (^myCustomBlock) (NSString *, NSInteger) = ^void (NSString * name, NSInteger age) {
+            NSLog(@"Name: %@\nAge: %lu", name,age);
+        };
+        myFunc(myCustomBlock);
+    }
+    return 0;
+}
+
+
+//sample 2 (direct)
+
+
+#import <Foundation/Foundation.h>
+void myFunc (void (^myBlock) (NSString * name, NSInteger)) {
+    myBlock (@"asda", 27);
+}
+
+
+int main (int argc, const char * argv[]) {
+    @autoreleasepool {
+        myFunc (^(NSString * name, NSInteger age){
+            NSLog(@"Name: %@\nAge: %lu", name,age);
+        }); 
+    }
+    return 0;
+}
+
+
+
+------(OOP)block as return value
+
+- (void) (^) (void) doSomething;
+- (void (^) (BOOL)) doSomethingConditionally;
+- (NSString* (^) (void)) returnString;
+- (NSString* (^) (BOOL)) returnStringConditionally;
+
+
+- （NSString* （^）(BOOL)）returnStringConditionally {
+    return ^(BOOL shouldReturn) {
+        if(shouldReturn) return @"foo";
+        return @"bar";
+    }
+}
+
+
+
+--------(OOP) block as Arguments
+
+- (void) doSomethingWithBlock: (void (^) (void)) block;
+- (void) doSomethingWithBlock：（void (^) (BOOL)) conditionBlock;
+- (void) doSomethingWithBlock: (NSString * (^) (void)) blockThatReturnsString;
+- (void) doSomethingWithBlock: (NSString * (^) (BOOL)) conditionalBlockThatReturnsString;
+
+
+
+----(OOP)block example
+
+#import <Foundation/Foundation.h>
+@interface Rectangle : NSObject
+
+@property (nonatomic, assign) NSInteger width;
+@property (nonatomic, assign) NSInteger height;
+- (NSInteger)getAreaUsing: (NSinteger (^) (NSInteger width, NSInteger height))technique;
+@end 
+
+#import "Rectangle.h"
+@interface Rectangle ()
+@end
+
+
+@implementation Rectangle 
+- (NSInteger)getAreaUsing：(NSInteger (^)(NSInteger width, NSInteger height))technique {
+    NSInteger area = technique(self.width, self.height);
+    return area;
+
+}
+@end
+
+#import <Foundation/Foundation.h>
+#import "Rectangle.h"
+
+int main (int argc, const char * argv[]) {
+    @autoreleasepool {
+        Rectangle * myRect = [[Rectangle alloc]init];
+        myRect.width=10;
+        myRect.height=15;
+
+        NSInteger area = [myRect getAreaUsing: ^NSInteger(NSinteger width, NSInteger height){
+            //write your code HEADERS
+            NSLog (@"width: %lu", width);
+            NSLog (@"height: %lu", height);
+            return height * width;
+        }];
+        NSLog (@"Area: %lu", area);
+    }
+    return 0;
+}
+
+
+
+-------------Install a pseudo tree command
+//on your terminal
+sudo touch /usr/local/bin/tree
+sudo vi /usr/local/bin/tree
+
+
+//insert the following:
+
+#!/bin/bash
+
+SEDMAGIC='s;[^/]*/;|__;g;s;__|;|;g'
+if ["$#" -gt 0] ; then
+    dirlist="$@"
+else
+    dirlist="."
+fi
+
+for x in $dirlist; do
+    find "$x" -print | sed -e "$SEDMAGIC"
+
+doSomething
+
+//set permission
+chmod 775 /usr/local/bin/tree
+
+
+//try the command "tree"
+
+//done 
+
+
+--------make terminal display git branch
+
+
+// open terminal and enter
+vi ~/.zshrc
+
+//insert the following code lines of codes 
+parse_git_branch() {
+    git branch 2> /dev/null | sed -n -e 's/^\*\(.*\)/[\1]/p'
+}
+
+COLOR_DEF='%f'
+COLOR_USR='%F{243}'
+COLOR_DIR='%F{197}'
+COLOR_GIT='%F{39}'
+NEWLINE=$'\n'
+setopt PROMPT_SUBST
+export PROMPT='${COLOR_USR}%n@%M ${COLOR_DIR}%d ${COLOR_GIT} ${parse_git_branch}${COLOR_DEF}${NEWLINE}%%'
+
+//save and quit vim
+:wq 
+//done , reopen the terminal to see changes
+
+
+
+
+-------------objective c dispatch-asynchronous - Make task asynchronous using GCD
+
+
+-------------dispatch asynchronous on another thread
+
+//get global queue so it will be dispatched on that thread and store in a variable
+dispatch_queue_t * queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+//dispatch asynchronously the code inside
+
+dispatch_async(queue, ^{
+    //background thread
+    //instert code here 
+})
+
+
+
+///dispatch asynchronously on main thread
+
+dispatch_async(dispatch_get_global_queue（DISPATCH_QUEUE_PRIORITY_DEFAULT,0）, ^(void){
+    //background thread
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        //run on main thread
+    })
+})
+
+
+-------------objective c - NSOperation - asynchronous --- Make task asynchronous using NSOperation
+
+
+
+---add operation using block
+NSOperationQueue * q = [[NSOperation alloc]init];
+
+[q addOperationUsingBlock: ^{
+    //code to excute in background
+        [NSOperationQueue mainQueue]addOperationUsingBlock:^{
+            //code to execute in mainThread
+        }
+}]
+
+
+---------------objective c- NSOperation - asynchronous
+-------make task asynchronous using NSOperation
+-------add operation using block
+
+NSOperationQueue * q =[[NSOperationQueue alloc]init];
+
+[q addOperationUsingBlock: ^ {
+    //code to excute in background
+    [NSOperationQueue mainQueue]addOperationUsingBlock:^{
+        //code to excute in mainQueue
+    }
+}]
+
+
+--- add operation using NSInvocation
+@interface ViewController ()
+@end
+
+@implementation ViewController
+- (void)viewController {
+    [super viewDidLoad];
+    NSInvocationOperation * displayNumbers = [[NSInvocation alloc]initWithTarget:self selector:@selector(displayNumbers) object:nil];
+    NSOperation * queue =[[NSOperation alloc]init];
+    [queue addOperation:displayNumbers];
+}
+
+- (void)displayNumbers {
+    for(int i =0; i<10; i++) {
+        NSLog (@"%i", i);
+    }
+}
+
+--------add operation using NSBlockOperation
+
+
+///version 1 - simple
+
+NSBlockOperation * fetchOperation = [NSBlockOperation blockOperationWithBlock:^ {
+    //code to execute in background
+}];
+
+//add to background task queue
+NSOperationQueue * queue = [[NSOperation alloc]init];
+queue.name=@"fetch";
+
+[queue addOperation:fetchOperation];
+
+//version 2- adding more block
+
+NSBlockOperation * fetchOperation = [NSBlockOperation blockOperationWithBlock:^{
+    //code to execute in background
+}];
+
+[fetchOperation addExecutionBlock:^{
+    //add this block to operation
+}];
+
+NSOperationQueue * queue = [[NSOperationQueue alloc]init];
+queue.name=@"fetch";
+[queue addOperation:fetchOperation];
+
+
+
+
+
+--------git check number of lines of codes
+git log --since=2022-08-01 --until=2022-08-19 --author="sanji" --pretty=tformat: --numstat | awk ' {add += $1; subs += $2; loc += $1 - $2} END {printf "added lines: %s, remove lines: %s, total lines: %s", add,subs,loc}'
+
+
+----------Objectivec NSPredicate
+----------check if strings conforms with the pattern 
+
+NSString * string = @"world_cup39@3x.png";
+NSString * pattern = @"[a-z]+[_a-z0-9]*@3x\\.png";
+NSPredicate * predicate = [NSPredicate predicateWithFormat:@"SELF matches %@", pattern];
+
+BOOL isValid =[predicate evaluateWithObject:string];
+NSLog(@"is valid %d", isValid);
+
+----------filter array with predicate method 1
+
+NSArray * trainees = @[
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"}    
+];
+
+NSString * searchString = @"e";
+NSPredicate * predicate2= [NSPredicate predicateWithFormat:@"name contains[c] %@", searchString];
+NSLog(@"%@",[trainees filteredArrayUsingPredicate:predicate2]);
+
+
+--------------filter array with predicate method 2
+
+NSArray * trainees = @[
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"},
+    @{@"name": @"dasda", @"team": @"iOS"}    
+];
+
+NSString * searchString = @"e";
+NSPredicate * predicate2= [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *, id> * _Nullable bindings) {
+    if ([searchString isEqualToString: [evaluatedObject objectForKey:@"name"]] || [[evaluatedObject objectForKey:@"name"]rangeOfString:searchString].location != NSNotFound) {
+        return evaluatedObject;
+    }
+    return nil;
+}];
+NSLog(@"%@",[trainees filteredArrayUsingPredicate:predicate2]);
+
+
+--------------Objective C NSRegularExpression
+---------------check of string is valid
+
+NSString * string = @"48";
+NSString * string = @"^\\d{2}$";
+
+NSError * error;
+NSRegularExpression * regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+
+//check if valid
+NSInteger numberOfMatches = [regex numberOfMatchesInString:string options:0 range:NSMakeRange(0,string.length)];
+BOOL isValid = NO;
+if(numberOfMatches > 0) isValid=YES;
+NSLog(@"is valid: %d", isValid);
+
+---------------See matched substrings with pattern
+
+NSString * string =@"48 59 28";
+NSString * pattern @"\\d{2}";
+NSError * error;
+NSRegularExpression * regex=[NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+NSArray<NSTextCheckingResult *>*matches =[regex matchesInString:string options:0 range:NSMakeRange(0,string.length)];
+
+NSMutableArray<NSString *>*matchedStrings = [[NSMutableArray alloc]init];
+
+
+for （NSTextCheckingResult * result in matches）{
+    NSString * matchedString =[string substringWithRange:[result range]];
+    [matchedStrings addObject:matchedStrings];
+}
+NSLog(@"matches: %@", matchedStrings);
+
+
+
+
+-------------Objective C - Make your own plist
+
+1. Right click the folder where you want to add a plist
+2. Choose a new file
+3. Choose iOS > Resource > Property List
+4. Set the name you want
+5. Go to the newly created file
+6. Add key and value as you desired 
+
+-------------Accessing plist key and values
+
+//sample: plist file name is metadeks.plist
+
+NSString * filePath = [[NSBundle mainBundle]pathForResource:@"metadeks" offType:@"plist"];
+NSDictionary * contents =[NSDictionary dictionaryWithContentsOfFile:filePath];
+
+NSLog (@"%@", contents);
+
+--------------accessing plist with validation if file exists
+
+NSString * filePath =  [[NSBundle mainBundle]pathForResource:@"metadeks" offType:@"plist"];
+NSDictionary * contents = nil;
+
+//check if file exist first 
+NSFileManager *fm= [NSFileManager defaultManager];
+if ([fm fileExitsAtPath:filePath]) {
+    contents =[NSDictionary dictionaryWithContentsOfFile:filePath];
+}
+
+NSLog (@"%@", contents);
+
+
+----------------accessing plist with singleton pattern
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    NSDictionary * metadata = [self metadata]；
+    NSLog (@"%@",metadata);
+}
+
+
+- （NSDictionary *)metadata {
+    static NSDictionary * metadata = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        NSString * filePath =[[NSBundle mainBundle]pathForResource:@"metadeks" offType:@"plist"];
+        NSFileManager * fm = [NSFileManager defaultManager];
+
+        if ([fm fileExitsAtPath：filePath]]) {
+            metadata = [NSDictionary dictionaryWithContentsOfFile:filePath];
+
+        }
+    });
+    return metadata；
+}
